@@ -18,6 +18,15 @@ const messageSchema = new mongoose.Schema(
     image: {
       type: String,
     },
+    sentiment: {
+      type: String,
+      enum: ["positive", "neutral", "negative"],
+      default: "neutral",
+    },
+    sentimentScore: {
+      type: Number,
+      default: 0, 
+    },
   },
   { timestamps: true }
 );

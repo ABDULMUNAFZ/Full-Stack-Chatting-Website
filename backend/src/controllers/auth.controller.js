@@ -2,10 +2,13 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js";
+import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, name, email, password, dateOfBirth, gender, parentsEmail, location } = req.body;
+
   try {
+    // Check for required fields
     if (!fullName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
@@ -14,21 +17,27 @@ export const signup = async (req, res) => {
       return res.status(400).json({ message: "Password must be at least 6 characters" });
     }
 
+    // Check if user already exists
     const user = await User.findOne({ email });
-
     if (user) return res.status(400).json({ message: "Email already exists" });
 
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create new user
     const newUser = new User({
-      fullName,
+      fullName: fullName || name,
       email,
       password: hashedPassword,
+      dateOfBirth,
+      gender,
+      parentsEmail,
+      location,
     });
 
     if (newUser) {
-      // generate jwt token here
+      // Generate JWT token
       generateToken(newUser._id, res);
       await newUser.save();
 
@@ -37,6 +46,10 @@ export const signup = async (req, res) => {
         fullName: newUser.fullName,
         email: newUser.email,
         profilePic: newUser.profilePic,
+        dateOfBirth: newUser.dateOfBirth,
+        gender: newUser.gender,
+        parentsEmail: newUser.parentsEmail,
+        location: newUser.location,
       });
     } else {
       res.status(400).json({ message: "Invalid user data" });
@@ -68,6 +81,10 @@ export const login = async (req, res) => {
       fullName: user.fullName,
       email: user.email,
       profilePic: user.profilePic,
+      dateOfBirth: user.dateOfBirth,
+      gender: user.gender,
+      parentsEmail: user.parentsEmail,
+      location: user.location,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);

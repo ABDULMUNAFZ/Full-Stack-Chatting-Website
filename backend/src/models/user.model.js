@@ -20,6 +20,23 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    dateOfBirth: {
+      type: Date,  // Date format for DOB
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"],  // Restricts values
+      required: true,
+    },
+    parentsEmail: {
+      type: String,
+      required: true,
+    },
+    location: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

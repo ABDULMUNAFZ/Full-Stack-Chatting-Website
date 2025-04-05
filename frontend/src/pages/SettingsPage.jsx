@@ -57,7 +57,7 @@ const SettingsPage = () => {
                       J
                     </div>
                     <div>
-                      <h3 className="font-medium text-sm">Magnificient Tech</h3>
+                      <h3 className="font-medium text-sm">Gokulakannan S</h3>
                       <p className="text-xs text-base-content/70">Online</p>
                     </div>
                   </div>

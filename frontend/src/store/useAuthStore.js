@@ -16,12 +16,21 @@ export const useAuthStore = create((set, get) => ({
 
   checkAuth: async () => {
     try {
-      const res = await axiosInstance.get("/auth/check");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token found. User is not authenticated.");
+        set({ authUser: null, isCheckingAuth: false });
+        return;
+      }
+
+      const res = await axiosInstance.get("/auth/check", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       set({ authUser: res.data });
       get().connectSocket();
     } catch (error) {
-      console.log("Error in checkAuth:", error);
+      console.log("Error in checkAuth:", error.response?.data || error);
       set({ authUser: null });
     } finally {
       set({ isCheckingAuth: false });
@@ -49,6 +58,9 @@ export const useAuthStore = create((set, get) => ({
       set({ authUser: res.data });
       toast.success("Logged in successfully");
 
+      // Store the token in localStorage after successful login
+      localStorage.setItem("token", res.data.token);
+
       get().connectSocket();
     } catch (error) {
       toast.error(error.response.data.message);
@@ -62,6 +74,10 @@ export const useAuthStore = create((set, get) => ({
       await axiosInstance.post("/auth/logout");
       set({ authUser: null });
       toast.success("Logged out successfully");
+
+      // Remove the token from localStorage after logout
+      localStorage.removeItem("token");
+
       get().disconnectSocket();
     } catch (error) {
       toast.error(error.response.data.message);
@@ -99,6 +115,7 @@ export const useAuthStore = create((set, get) => ({
       set({ onlineUsers: userIds });
     });
   },
+
   disconnectSocket: () => {
     if (get().socket?.connected) get().socket.disconnect();
   },
